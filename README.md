@@ -147,3 +147,69 @@ python train_KD_main.py --evaluate -s path/to/snn_model.pth
 注意：
 - 评估SNN模型时，需要提供SNN模型路径
 - SNN模型路径为`/data1/graduation/model/benli/CBSD/CBSD_snn_xxx.pth`
+
+## 🖥️ 使用 Screen 进行长时间训练
+
+### 📌 基本 Screen 命令
+
+#### 重新连接到 Screen 会话
+```bash
+# 通过名称重新连接
+screen -r snn
+```
+
+#### 在 Screen 会话中运行训练
+```bash
+# 训练ANN模型
+python code/ann/Spiking-UNet-master/ann_train.py --train -n CBSD -b 8 -e 401 -lr 1e-4 -op adam
+
+# 直接训练SNN
+python code/ann/Spiking-UNet-master/train_KD_main.py --train -b 8 -T 4 -e 401 -lr 1e-4 -op adam
+
+# 使用SAKD方法进行知识蒸馏脚本
+python code/ann/Spiking-UNet-master/train_KD_main.py --train -b 8 -T 4 -e 401 -lr 1e-4 -op adam -a model/benli/CBSD/CBSD_1e_4.pth --kd SAKD
+```
+
+## 📂 模型权重与评估结果
+
+### 📑 模型权重文件
+所有训练好的模型权重文件存放在以下目录：
+```
+/data1/graduation/model/benli/CBSD/
+```
+
+该目录包含：
+- ANN模型权重：`CBSD_1e_4.pth`
+- SNN模型权重：`CBSD_snn_xxx.pth`（其中xxx表示不同的训练配置）
+
+### 📊 评估结果
+评估结果存放在以下目录：
+
+#### ANN评估结果
+```
+/data1/graduation/new_results/ann/ann/CBSD/64/
+```
+该目录包含ANN模型在不同噪声级别下的去噪结果、性能指标和能耗。
+
+#### SNN的评估结果
+```
+/data1/graduation/snn_KD_results/
+```
+该目录包含SNN模型的评估结果，包括：
+- 去噪后的图像
+- PSNR和SSIM指标
+- 能耗统计(待完成)
+
+### 💾 使用预训练模型
+要使用预训练模型进行评估，请指定相应的模型路径：
+```bash
+# 评估ANN模型
+python code/ann/Spiking-UNet-master/ann_train.py -v 1e_4
+```
+
+```bash
+# 评估SNN模型
+python code/ann/Spiking-UNet-master/train_KD_main.py --evaluate -s model/benli/CBSD/CBSD_snn_xxx.pth
+```
+
+注意：请将`CBSD_snn_xxx.pth`替换为实际的SNN模型文件名。
